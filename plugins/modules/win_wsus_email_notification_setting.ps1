@@ -327,6 +327,34 @@ function Set-WsusStatusNotificationFrequency {
     }
 }
 
+# Status notification time
+function Set-WsusStatusNotificationTime {
+    if ($null -ne $statusNotificationTime) {
+
+        if ($statusNotificationTime -notmatch "^\d{2}:\d{2}:\d{2}$") {
+            $module.FailJson("Parameter 'status_notification_time' must be in format 'hh:mm:ss'")
+        }
+
+        try {
+            [System.TimeSpan]$statusNotificationTimeSpan = $statusNotificationTime
+        }
+        catch {
+            $module.FailJson("Failed convert string to time span", $Error[0])
+        }
+
+        if (-not $wsusConfig.StatusNotificationTimeOfDay.Equals($statusNotificationTimeSpan)) {
+            try {
+                $wsusConfig.StatusNotificationTimeOfDay = $statusNotificationTimeSpan
+                $wsusConfig.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to set notification time", $Error[0])
+            }
+        }
+    }
+}
+
 # The order of the execution is important
 # E.G. You can't remove all recipients before
 #      turning the notification off.
@@ -340,6 +368,7 @@ if ($state -eq "absent") {
 elseif ($state -eq "present") {
     Set-WsusSyncNotificationRecipients
     Set-WsusSendSyncNotification
+    Set-WsusStatusNotificationTime
     Set-WsusStatusNotificationFrequency
     Set-WsusStatusNotificationRecipients
     Set-WsusSendStatusNotification

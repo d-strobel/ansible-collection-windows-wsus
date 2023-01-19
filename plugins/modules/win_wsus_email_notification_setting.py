@@ -83,6 +83,12 @@ options:
     type: str
     default: daily
     choices: [ daily, weekly ]
+  status_notification_time:
+    description:
+    - Define the time of day where the status notifcation should be sent.
+    - The parameter must be in the format hh:mm:ss (hour:minutes:seconds).
+    - The time is in Coordinated Universal Time (UTC).
+    type: str
   state:
     description:
     - Set to C(present) to ensure the settings are present.
