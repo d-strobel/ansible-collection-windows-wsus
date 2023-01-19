@@ -108,6 +108,18 @@ if ($smtpPort -and ($wsusConfig.SmtpPort -ne $smtpPort) -and ($state -eq "presen
     }
 }
 
+# SMTP Authentication required
+if (($smtpAuthenticationRequired -ne $wsusConfig.SmtpServerRequiresAuthentication) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SmtpServerRequiresAuthentication = $smtpAuthenticationRequired
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set smtp authentication required", $Error[0])
+    }
+}
+
 # SMTP Username
 if ($smtpUsername -and $wsusConfig.SmtpUserName -and ($state -eq "absent")) {
     try {
@@ -122,7 +134,7 @@ if ($smtpUsername -and $wsusConfig.SmtpUserName -and ($state -eq "absent")) {
 elseif ($smtpUsername -and ($wsusConfig.SmtpUserName -ne $smtpUsername) -and ($state -eq "present")) {
     try {
         $wsusConfig.SmtpUserName = $smtpUsername
-        $wsusConfig.save()
+        $wsusConfig.Save()
         $module.Result.changed = $true
     }
     catch {
@@ -151,17 +163,6 @@ elseif (
     }
     catch {
         $module.FailJson("Failed to set smtp password", $Error[0])
-    }
-}
-
-# SMTP Authentication required
-if (($smtpAuthenticationRequired -ne $wsusConfig.SmtpServerRequiresAuthentication) -and ($state -eq "present")) {
-    try {
-        $wsusConfig.SmtpServerRequiresAuthentication = $smtpAuthenticationRequired
-        $module.Result.changed = $true
-    }
-    catch {
-        $module.FailJson("Failed to remove smtp password", $Error[0])
     }
 }
 
