@@ -57,11 +57,6 @@ $state = $module.Params.state
 # ErrorAction
 $ErrorActionPreference = 'Stop'
 
-# Ensure powershell module is loaded
-# if (-not (Import-WsusPowershellModule)) {
-#     $module.FailJson("Failed to load PowerShell-Module for Wsus")
-# }
-
 # Get configuration
 try {
     $wsusConfig = (Get-WsusServer).GetEmailNotificationConfiguration()
@@ -69,10 +64,6 @@ try {
 catch {
     $module.FailJson("Failed to get WSUS email notification configuration", $Error[0])
 }
-
-# ------------------
-# SMTP configuration
-# ------------------
 
 # SMTP Host
 if ($smtpHost -and $wsusConfig.SmtpHostName -and ($state -eq "absent")) {
@@ -363,7 +354,6 @@ if ($state -eq "absent") {
     Set-WsusSyncNotificationRecipients
     Set-WsusSendStatusNotification
     Set-WsusStatusNotificationRecipients
-    Set-WsusStatusNotificationFrequency
 }
 elseif ($state -eq "present") {
     Set-WsusSyncNotificationRecipients
