@@ -56,9 +56,9 @@ $state = $module.Params.state
 $ErrorActionPreference = 'Stop'
 
 # Ensure powershell module is loaded
-if (-not (Import-WsusPowershellModule)) {
-    $module.FailJson("Failed to load PowerShell-Module for Wsus")
-}
+# if (-not (Import-WsusPowershellModule)) {
+#     $module.FailJson("Failed to load PowerShell-Module for Wsus")
+# }
 
 # Get configuration
 try {
@@ -94,5 +94,16 @@ elseif (($wsusConfig.SmtpHostName -ne $smtpHost) -and ($state -eq "present")) {
     }
 }
 
+# SMTP Port
+if (($wsusConfig.SmtpPort -ne $smtpPort) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SmtpPort = $smtpPort
+        $wsusConfig.save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set new smtp port", $Error[0])
+    }
+}
 
 $module.ExitJson()
