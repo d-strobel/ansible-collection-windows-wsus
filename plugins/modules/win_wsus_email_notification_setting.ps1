@@ -154,4 +154,15 @@ elseif (
     }
 }
 
+# SMTP Authentication required
+if (($smtpAuthenticationRequired -ne $wsusConfig.SmtpServerRequiresAuthentication) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SmtpServerRequiresAuthentication = $smtpAuthenticationRequired
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to remove smtp password", $Error[0])
+    }
+}
+
 $module.ExitJson()
