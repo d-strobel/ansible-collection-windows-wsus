@@ -46,7 +46,7 @@ $smtpAuthenticationRequired = $module.Params.smtp_authentication_required
 $emailLanguage = $module.Params.email_language
 $senderDisplayName = $module.Params.sender_display_name
 $senderEmailAddress = $module.Params.sender_email_address
-$sendSyncNotification = $module.Params.email_language
+$sendSyncNotification = $module.Params.send_sync_notification
 $syncNotificationRecipients = $module.Params.sync_notification_recipients
 $sendStatusNotification = $module.Params.send_status_notification
 $statusNotificationFrequency = $module.Params.status_notification_frequency
@@ -213,7 +213,7 @@ if ($senderEmailAddress -and $wsusConfig.SenderEmailAddress -and ($state -eq "ab
         $module.Result.changed = $true
     }
     catch {
-        $module.FailJson("Failed to remove sender email address", $Error[0])
+        $module.FailJson("Failed to remove sender email address $senderEmailAddress", $Error[0])
     }
 }
 elseif ($senderEmailAddress -and ($wsusConfig.SenderEmailAddress -ne $senderEmailAddress) -and ($state -eq "present")) {
@@ -223,7 +223,46 @@ elseif ($senderEmailAddress -and ($wsusConfig.SenderEmailAddress -ne $senderEmai
         $module.Result.changed = $true
     }
     catch {
-        $module.FailJson("Failed to set sender email address", $Error[0])
+        $module.FailJson("Failed to set sender email address $senderEmailAddress", $Error[0])
+    }
+}
+
+# Send sync notification
+if (($sendSyncNotification -ne $wsusConfig.SendSyncNotification) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SendSyncNotification = $sendSyncNotification
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set sync notification", $Error[0])
+    }
+}
+
+# Sync notification recipients
+$wsusConfigSyncNotificationRecipients = $wsusConfig.SyncNotificationRecipients.Address
+
+foreach ($syncNotificationRecipient in $syncNotificationRecipients) {
+
+    if ($syncNotificationRecipient -in $wsusConfigSyncNotificationRecipients -and ($state -eq "absent")) {
+        try {
+            $wsusConfig.SyncNotificationRecipients.Remove($syncNotificationRecipient)
+            $wsusConfig.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to remove sync recipient $syncNotificationRecipient", $Error[0])
+        }
+    }
+    elseif ($syncNotificationRecipient -notin $wsusConfigSyncNotificationRecipients -and ($state -eq "present")) {
+        try {
+            $wsusConfig.SyncNotificationRecipients.Add($syncNotificationRecipient)
+            $wsusConfig.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set sync recipient $syncNotificationRecipient", $Error[0])
+        }
     }
 }
 

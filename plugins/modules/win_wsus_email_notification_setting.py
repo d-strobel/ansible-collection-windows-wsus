@@ -57,6 +57,15 @@ options:
     description:
     - Define the email address of the sender.
     type: str
+  send_sync_notification:
+    description:
+    - Define if sync notifications should be sent.
+    type: bool
+  sync_notification_recipients:
+    description:
+    - A list of recipients for sync notifications.
+    type: list
+    elements: str
   state:
     description:
     - Set to C(present) to ensure the settings are present.
