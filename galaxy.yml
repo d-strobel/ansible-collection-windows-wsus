@@ -1,0 +1,17 @@
+namespace: d_strobel
+name: windows_wsus
+version: 0.1.0
+readme: README.md
+authors:
+  - Dustin Strobel @d-strobel
+description: |
+  Ansible collection for Windows Server Update Services (WSUS)
+license_file: LICENSE
+tags:
+  - windows
+dependencies: {}
+repository: https://github.com/d-strobel/ansible-collection-windows-wsus
+documentation: https://github.com/d-strobel/ansible-collection-windows-wsus
+homepage: https://github.com/d-strobel/ansible-collection-windows-wsus
+issues: https://github.com/d-strobel/ansible-collection-windows-wsus/issues
+build_ignore: []
