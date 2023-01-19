@@ -24,7 +24,26 @@ options:
   smtp_username:
     description:
     - Set the smtp username for authentication to the smtp host.
+    - Reuired when smtp_authentication_required is true.
     type: str
+  smtp_password:
+    description:
+    - Set the smtp password for authentication to the smtp host.
+    - Reuired when smtp_authentication_required is true.
+    type: str
+  smtp_password_update:
+    description:
+    - Define how the password is updated.
+    - Set to C(on_create) to set the password only on the first run.
+    - Set to C(always) to set the password every time your playbook runs.
+    type: str
+    default: on_create
+    choices: [ always, on_create ]
+  smtp_authentication_required:
+    description:
+    - Define if the smtp host requires an authentication.
+    type: bool
+    default: false
   state:
     description:
     - Set to C(present) to ensure the settings are present.
