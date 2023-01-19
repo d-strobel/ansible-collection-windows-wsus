@@ -75,7 +75,7 @@ catch {
 # ------------------
 
 # SMTP Host
-if ($smtpHost -and ($wsusConfig.SmtpHostName) -and ($state -eq "absent")) {
+if ($smtpHost -and $wsusConfig.SmtpHostName -and ($state -eq "absent")) {
     try {
         $wsusConfig.SmtpHostName = ""
         $wsusConfig.Save()
@@ -109,7 +109,7 @@ if ($smtpPort -and ($wsusConfig.SmtpPort -ne $smtpPort) -and ($state -eq "presen
 }
 
 # SMTP Username
-if ($smtpUsername -and ($wsusConfig.SmtpUserName) -and ($state -eq "absent")) {
+if ($smtpUsername -and $wsusConfig.SmtpUserName -and ($state -eq "absent")) {
     try {
         $wsusConfig.SmtpUserName = ""
         $wsusConfig.Save()
@@ -131,7 +131,7 @@ elseif ($smtpUsername -and ($wsusConfig.SmtpUserName -ne $smtpUsername) -and ($s
 }
 
 # SMTP Password
-if ($smtpPassword -and ($wsusConfig.HasSmtpUserPassword) -and ($state -eq "absent")) {
+if ($smtpPassword -and $wsusConfig.HasSmtpUserPassword -and ($state -eq "absent")) {
     try {
         $wsusConfig.SetSmtpUserPassword("")
         $module.Result.changed = $true
@@ -143,7 +143,7 @@ if ($smtpPassword -and ($wsusConfig.HasSmtpUserPassword) -and ($state -eq "absen
 elseif (
     $smtpPassword -and
     (((-not $wsusConfig.HasSmtpUserPassword) -and ($state -eq "present")) -or
-    (($wsusConfig.HasSmtpUserPassword) -and ($smtpPasswordUpdate -eq "always") -and ($state -eq "present")))
+    ($wsusConfig.HasSmtpUserPassword -and ($smtpPasswordUpdate -eq "always") -and ($state -eq "present")))
 ) {
     try {
         $wsusConfig.SetSmtpUserPassword($smtpPassword)
