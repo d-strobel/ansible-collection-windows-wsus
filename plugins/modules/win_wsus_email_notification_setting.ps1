@@ -313,6 +313,20 @@ function Set-WsusStatusNotificationRecipients {
     }
 }
 
+# Status notification frequency
+function Set-WsusStatusNotificationFrequency {
+    if ($wsusConfig.StatusNotificationFrequency -ne $statusNotificationFrequency) {
+        try {
+            $wsusConfig.StatusNotificationFrequency = $statusNotificationFrequency
+            $wsusConfig.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set status notification frequency to $statusNotificationFrequency", $Error[0])
+        }
+    }
+}
+
 # The order of the execution is important
 # E.G. You can't remove all recipients before
 #      turning the notification off.
@@ -321,10 +335,12 @@ if ($state -eq "absent") {
     Set-WsusSyncNotificationRecipients
     Set-WsusSendStatusNotification
     Set-WsusStatusNotificationRecipients
+    Set-WsusStatusNotificationFrequency
 }
 elseif ($state -eq "present") {
     Set-WsusSyncNotificationRecipients
     Set-WsusSendSyncNotification
+    Set-WsusStatusNotificationFrequency
     Set-WsusStatusNotificationRecipients
     Set-WsusSendStatusNotification
 }

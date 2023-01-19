@@ -77,6 +77,12 @@ options:
     - If you want to remove all recipients you must change send_status_notification to false.
     type: list
     elements: str
+  status_notification_frequency:
+    description:
+    - Define how often the status notifcation should be sent.
+    type: str
+    default: daily
+    choices: [ daily, weekly ]
   state:
     description:
     - Set to C(present) to ensure the settings are present.
