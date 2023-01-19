@@ -64,6 +64,17 @@ options:
   sync_notification_recipients:
     description:
     - A list of recipients for sync notifications.
+    - If you want to remove all recipients you must change send_sync_notification to false.
+    type: list
+    elements: str
+  send_status_notification:
+    description:
+    - Define if status notifications should be sent.
+    type: bool
+  status_notification_recipients:
+    description:
+    - A list of recipients for status notifications.
+    - If you want to remove all recipients you must change send_status_notification to false.
     type: list
     elements: str
   state:
