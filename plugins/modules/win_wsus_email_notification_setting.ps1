@@ -20,8 +20,8 @@ $spec = @{
         send_sync_notification         = @{ type = "bool"; default = $false }
         sync_notification_recipients   = @{ type = "list"; elements = "str" }
         send_status_notification       = @{ type = "bool"; default = $false }
-        status_notificaion_frequency   = @{ type = "str"; choices = "daily", "weekly"; default = "daily" }
-        status_notificaion_time        = @{ type = "str" }
+        status_notification_frequency   = @{ type = "str"; choices = "daily", "weekly"; default = "daily" }
+        status_notification_time        = @{ type = "str" }
         status_notification_recipients = @{ type = "list"; elements = "str" }
         state                          = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
@@ -36,20 +36,20 @@ $spec = @{
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 # Map variables
-$smtp_host = $module.Params.smtp_host
-$smtp_port = $module.Params.smtp_port
-$smtp_username = $module.Params.smtp_username
-$smtp_password = $module.Params.smtp_password
-$smtp_authentication_required = $module.Params.smtp_authentication_required
-$sender_display_name = $module.Params.sender_display_name
-$sender_email_address = $module.Params.sender_email_address
-$email_language = $module.Params.email_language
-$send_sync_notification = $module.Params.email_language
-$sync_notification_recipients = $module.Params.sync_notification_recipients
-$send_status_notification = $module.Params.send_status_notification
-$status_notificaion_frequency = $module.Params.status_notificaion_frequency
-$status_notificaion_time = $module.Params.status_notificaion_time
-$status_notification_recipients = $module.Params.status_notification_recipients
+$smtpHost = $module.Params.smtp_host
+$smtpPort = $module.Params.smtp_port
+$smtpUsername = $module.Params.smtp_username
+$smtpPassword = $module.Params.smtp_password
+$smtpAuthenticationRequired = $module.Params.smtp_authentication_required
+$senderDisplayName = $module.Params.sender_display_name
+$senderEmailAddress = $module.Params.sender_email_address
+$emailLanguage = $module.Params.email_language
+$sendSyncNotification = $module.Params.email_language
+$syncNotificationRecipients = $module.Params.sync_notification_recipients
+$sendStatusNotification = $module.Params.send_status_notification
+$statusNotificationFrequency = $module.Params.status_notification_frequency
+$statusNotificationTime = $module.Params.status_notification_time
+$statusNotificationRecipients = $module.Params.status_notification_recipients
 $state = $module.Params.state
 
 # ErrorAction
