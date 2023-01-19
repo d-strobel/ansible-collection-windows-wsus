@@ -53,6 +53,10 @@ options:
     description:
     - Define the display name of the email sender.
     type: str
+  sender_email_address:
+    description:
+    - Define the email address of the sender.
+    type: str
   state:
     description:
     - Set to C(present) to ensure the settings are present.

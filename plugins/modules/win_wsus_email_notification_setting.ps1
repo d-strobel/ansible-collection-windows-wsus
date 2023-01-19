@@ -201,7 +201,29 @@ elseif ($senderDisplayName -and ($wsusConfig.SenderDisplayName -ne $senderDispla
         $module.Result.changed = $true
     }
     catch {
-        $module.FailJson("Failed to set sender displaay name", $Error[0])
+        $module.FailJson("Failed to set sender display name", $Error[0])
+    }
+}
+
+# Sender email address
+if ($senderEmailAddress -and $wsusConfig.SenderEmailAddress -and ($state -eq "absent")) {
+    try {
+        $wsusConfig.SenderEmailAddress = $null
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to remove sender email address", $Error[0])
+    }
+}
+elseif ($senderEmailAddress -and ($wsusConfig.SenderEmailAddress -ne $senderEmailAddress) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SenderEmailAddress = $senderEmailAddress
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set sender email address", $Error[0])
     }
 }
 
