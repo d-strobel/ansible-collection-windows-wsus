@@ -228,81 +228,105 @@ elseif ($senderEmailAddress -and ($wsusConfig.SenderEmailAddress -ne $senderEmai
 }
 
 # Send sync notification
-if (($null -ne $sendSyncNotification) -and ($sendSyncNotification -ne $wsusConfig.SendSyncNotification)) {
-    try {
-        $wsusConfig.SendSyncNotification = $sendSyncNotification
-        $wsusConfig.Save()
-        $module.Result.changed = $true
-    }
-    catch {
-        $module.FailJson("Failed to set sync notification", $Error[0])
+function Set-WsusSendSyncNotification {
+    if (($null -ne $sendSyncNotification) -and ($sendSyncNotification -ne $wsusConfig.SendSyncNotification)) {
+        try {
+            $wsusConfig.SendSyncNotification = $sendSyncNotification
+            $wsusConfig.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set sync notification", $Error[0])
+        }
     }
 }
 
 # Sync notification recipients
-$wsusConfigSyncNotificationRecipients = $wsusConfig.SyncNotificationRecipients.Address
+function Set-WsusSyncNotificationRecipients {
+    $wsusConfigSyncNotificationRecipients = $wsusConfig.SyncNotificationRecipients.Address
 
-foreach ($syncNotificationRecipient in $syncNotificationRecipients) {
+    foreach ($syncNotificationRecipient in $syncNotificationRecipients) {
 
-    if ($syncNotificationRecipient -in $wsusConfigSyncNotificationRecipients -and ($state -eq "absent")) {
-        try {
-            $wsusConfig.SyncNotificationRecipients.Remove($syncNotificationRecipient) | Out-Null
-            $wsusConfig.Save()
-            $module.Result.changed = $true
+        if ($syncNotificationRecipient -in $wsusConfigSyncNotificationRecipients -and ($state -eq "absent")) {
+            try {
+                $wsusConfig.SyncNotificationRecipients.Remove($syncNotificationRecipient) | Out-Null
+                $wsusConfig.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to remove sync recipient $syncNotificationRecipient", $Error[0])
+            }
         }
-        catch {
-            $module.FailJson("Failed to remove sync recipient $syncNotificationRecipient", $Error[0])
-        }
-    }
-    elseif ($syncNotificationRecipient -notin $wsusConfigSyncNotificationRecipients -and ($state -eq "present")) {
-        try {
-            $wsusConfig.SyncNotificationRecipients.Add($syncNotificationRecipient) | Out-Null
-            $wsusConfig.Save()
-            $module.Result.changed = $true
-        }
-        catch {
-            $module.FailJson("Failed to set sync recipient $syncNotificationRecipient", $Error[0])
+        elseif ($syncNotificationRecipient -notin $wsusConfigSyncNotificationRecipients -and ($state -eq "present")) {
+            try {
+                $wsusConfig.SyncNotificationRecipients.Add($syncNotificationRecipient) | Out-Null
+                $wsusConfig.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to set sync recipient $syncNotificationRecipient", $Error[0])
+            }
         }
     }
 }
 
 # Send status notification
-if (($null -ne $sendStatusNotification) -and ($sendStatusNotification -ne $wsusConfig.SendStatusNotification)) {
-    try {
-        $wsusConfig.SendStatusNotification = $sendStatusNotification
-        $wsusConfig.Save()
-        $module.Result.changed = $true
-    }
-    catch {
-        $module.FailJson("Failed to set status notification", $Error[0])
+function Set-WsusSendStatusNotification {
+    if (($null -ne $sendStatusNotification) -and ($sendStatusNotification -ne $wsusConfig.SendStatusNotification)) {
+        try {
+            $wsusConfig.SendStatusNotification = $sendStatusNotification
+            $wsusConfig.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set status notification", $Error[0])
+        }
     }
 }
 
 # Status notification recipients
-$wsusConfigStatusRecipients = $wsusConfig.StatusNotificationRecipients.Address
+function Set-WsusStatusNotificationRecipients {
+    $wsusConfigStatusRecipients = $wsusConfig.StatusNotificationRecipients.Address
 
-foreach ($statusNotificationRecipient in $statusNotificationRecipients) {
+    foreach ($statusNotificationRecipient in $statusNotificationRecipients) {
 
-    if ($statusNotificationRecipient -in $wsusConfigStatusRecipients -and ($state -eq "absent")) {
-        try {
-            $wsusConfig.StatusNotificationRecipients.Remove($statusNotificationRecipient) | Out-Null
-            $wsusConfig.Save()
-            $module.Result.changed = $true
+        if ($statusNotificationRecipient -in $wsusConfigStatusRecipients -and ($state -eq "absent")) {
+            try {
+                $wsusConfig.StatusNotificationRecipients.Remove($statusNotificationRecipient) | Out-Null
+                $wsusConfig.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to remove status recipient $statusNotificationRecipient", $Error[0])
+            }
         }
-        catch {
-            $module.FailJson("Failed to remove status recipient $statusNotificationRecipient", $Error[0])
+        elseif ($statusNotificationRecipient -notin $wsusConfigStatusRecipients -and ($state -eq "present")) {
+            try {
+                $wsusConfig.StatusNotificationRecipients.Add($statusNotificationRecipient) | Out-Null
+                $wsusConfig.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to set status recipient $statusNotificationRecipient", $Error[0])
+            }
         }
     }
-    elseif ($statusNotificationRecipient -notin $wsusConfigStatusRecipients -and ($state -eq "present")) {
-        try {
-            $wsusConfig.StatusNotificationRecipients.Add($statusNotificationRecipient) | Out-Null
-            $wsusConfig.Save()
-            $module.Result.changed = $true
-        }
-        catch {
-            $module.FailJson("Failed to set status recipient $statusNotificationRecipient", $Error[0])
-        }
-    }
+}
+
+# The order of the execution is important
+# E.G. You can't remove all recipients before
+#      turning the notification off.
+if ($state -eq "absent") {
+    Set-WsusSendSyncNotification
+    Set-WsusSyncNotificationRecipients
+    Set-WsusSendStatusNotification
+    Set-WsusStatusNotificationRecipients
+}
+elseif ($state -eq "present") {
+    Set-WsusSyncNotificationRecipients
+    Set-WsusSendSyncNotification
+    Set-WsusStatusNotificationRecipients
+    Set-WsusSendStatusNotification
 }
 
 $module.ExitJson()
