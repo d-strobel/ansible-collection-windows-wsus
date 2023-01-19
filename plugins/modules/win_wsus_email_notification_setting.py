@@ -11,6 +11,16 @@ short_description: Modify email notification settings
 description:
 - Modify smtp and email notification settings
 options:
+  smtp_host:
+    description:
+    - Set the smtp hostname to use for email notifications.
+    type: str
+  smtp_port:
+    description:
+    - Set the smtp port of the smtp host to use for email notifications.
+    - You cannot absent this option. Port 25 will always be the default.
+    type: int
+    default: 25
   state:
     description:
     - Set to C(present) to ensure the settings are present.
