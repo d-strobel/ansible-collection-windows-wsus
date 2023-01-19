@@ -12,7 +12,7 @@ $spec = @{
         smtp_host                      = @{ type = "str" }
         smtp_port                      = @{ type = "int"; default = 25 }
         smtp_username                  = @{ type = "str" }
-        smtp_password                  = @{ type = "str" }
+        smtp_password                  = @{ type = "str"; no_log = $true }
         smtp_password_update           = @{ type = "str"; choices = "always", "on_create"; default = "on_create" }
         smtp_authentication_required   = @{ type = "bool"; default = $false }
         sender_display_name            = @{ type = "str" }
