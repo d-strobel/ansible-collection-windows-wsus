@@ -183,4 +183,26 @@ if ($emailLanguage -and ($wsusConfig.EmailLanguage -ne $emailLanguage) -and ($st
     }
 }
 
+# Sender display name
+if ($senderDisplayName -and $wsusConfig.SenderDisplayName -and ($state -eq "absent")) {
+    try {
+        $wsusConfig.SenderDisplayName = ""
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to remove sender display name", $Error[0])
+    }
+}
+elseif ($senderDisplayName -and ($wsusConfig.SenderDisplayName -ne $senderDisplayName) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SenderDisplayName = $senderDisplayName
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set sender displaay name", $Error[0])
+    }
+}
+
 $module.ExitJson()

@@ -49,6 +49,10 @@ options:
     - Define language of the email.
     type: str
     default: en
+  sender_display_name:
+    description:
+    - Define the display name of the email sender.
+    type: str
   state:
     description:
     - Set to C(present) to ensure the settings are present.
