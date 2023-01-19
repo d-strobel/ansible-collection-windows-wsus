@@ -44,6 +44,11 @@ options:
     - Define if the smtp host requires an authentication.
     type: bool
     default: false
+  email_language:
+    description:
+    - Define language of the email.
+    type: str
+    default: en
   state:
     description:
     - Set to C(present) to ensure the settings are present.

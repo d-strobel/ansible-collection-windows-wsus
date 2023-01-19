@@ -15,9 +15,9 @@ $spec = @{
         smtp_password                  = @{ type = "str"; no_log = $true }
         smtp_password_update           = @{ type = "str"; choices = "always", "on_create"; default = "on_create" }
         smtp_authentication_required   = @{ type = "bool"; default = $false }
+        email_language                 = @{ type = "str"; default = "en" }
         sender_display_name            = @{ type = "str" }
         sender_email_address           = @{ type = "str" }
-        email_language                 = @{ type = "str"; default = "en" }
         send_sync_notification         = @{ type = "bool"; default = $false }
         sync_notification_recipients   = @{ type = "list"; elements = "str" }
         send_status_notification       = @{ type = "bool"; default = $false }
@@ -43,9 +43,9 @@ $smtpUsername = $module.Params.smtp_username
 $smtpPassword = $module.Params.smtp_password
 $smtpPasswordUpdate = $module.Params.smtp_password_update
 $smtpAuthenticationRequired = $module.Params.smtp_authentication_required
+$emailLanguage = $module.Params.email_language
 $senderDisplayName = $module.Params.sender_display_name
 $senderEmailAddress = $module.Params.sender_email_address
-$emailLanguage = $module.Params.email_language
 $sendSyncNotification = $module.Params.email_language
 $syncNotificationRecipients = $module.Params.sync_notification_recipients
 $sendStatusNotification = $module.Params.send_status_notification
@@ -163,6 +163,23 @@ elseif (
     }
     catch {
         $module.FailJson("Failed to set smtp password", $Error[0])
+    }
+}
+
+# Email language
+if ($emailLanguage -and ($wsusConfig.EmailLanguage -ne $emailLanguage) -and ($state -eq "present")) {
+
+    if ( $emailLanguage -notin $wsusConfig.SupportedEmailLanguages) {
+        $module.FailJson("Failed to set E-Mail language. Supported languages are: $($wsusConfig.SupportedEmailLanguages).")
+    }
+
+    try {
+        $wsusConfig.EmailLanguage = $emailLanguage
+        $wsusConfig.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set E-Mail language", $Error[0])
     }
 }
 
