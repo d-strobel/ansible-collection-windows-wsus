@@ -30,7 +30,7 @@ $spec = @{
         , @("send_sync_notification", $true, @("smtp_host", "sender_display_name", "sender_email_address", "sync_notification_recipients"))
         , @("send_status_notification", $true, @("smtp_host", "sender_display_name", "sender_email_address", "status_notification_recipients"))
     )
-    supports_check_mode = $true
+    supports_check_mode = $false
 }
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
@@ -67,5 +67,32 @@ try {
 catch {
     $module.FailJson("Failed to get WSUS email notification configuration", $Error[0])
 }
+
+# ------------------
+# SMTP configuration
+# ------------------
+
+# SMTP Host
+if (($wsusConfig.SmtpHostName) -and ($state -eq "absent")) {
+    try {
+        $wsusConfig.SmtpHostName = ""
+        $wsusConfig.save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to remove smtp host", $Error[0])
+    }
+}
+elseif (($wsusConfig.SmtpHostName -ne $smtpHost) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SmtpHostName = $smtpHost
+        $wsusConfig.save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set new smtp host", $Error[0])
+    }
+}
+
 
 $module.ExitJson()
