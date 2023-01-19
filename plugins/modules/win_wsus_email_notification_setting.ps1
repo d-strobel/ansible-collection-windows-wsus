@@ -73,7 +73,7 @@ catch {
 # ------------------
 
 # SMTP Host
-if (($wsusConfig.SmtpHostName) -and ($state -eq "absent")) {
+if (($wsusConfig.SmtpHostName) -and $smtpHost -and ($state -eq "absent")) {
     try {
         $wsusConfig.SmtpHostName = ""
         $wsusConfig.save()
@@ -103,6 +103,28 @@ if (($wsusConfig.SmtpPort -ne $smtpPort) -and ($state -eq "present")) {
     }
     catch {
         $module.FailJson("Failed to set new smtp port", $Error[0])
+    }
+}
+
+# SMTP Username
+if (($wsusConfig.SmtpUserName) -and $smtpUsername -and ($state -eq "absent")) {
+    try {
+        $wsusConfig.SmtpUserName = ""
+        $wsusConfig.save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to remove smtp username", $Error[0])
+    }
+}
+elseif (($wsusConfig.SmtpUserName -ne $smtpUsername) -and ($state -eq "present")) {
+    try {
+        $wsusConfig.SmtpUserName = $smtpUsername
+        $wsusConfig.save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to set new smtp host", $Error[0])
     }
 }
 

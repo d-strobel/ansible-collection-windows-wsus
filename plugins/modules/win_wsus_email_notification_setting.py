@@ -21,6 +21,10 @@ options:
     - You cannot absent this option. Port 25 will always be the default.
     type: int
     default: 25
+  smtp_username:
+    description:
+    - Set the smtp username for authentication to the smtp host.
+    type: str
   state:
     description:
     - Set to C(present) to ensure the settings are present.
