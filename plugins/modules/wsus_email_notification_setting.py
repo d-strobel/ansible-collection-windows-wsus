@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: win_wsus_email_notification_setting
+module: wsus_email_notification_setting
 short_description: Modify email notification settings
 description:
 - Modify smtp and email notification settings

@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: win_wsus_install_approval_rule
+module: wsus_install_approval_rule
 short_description: Modify an update install approval rule
 description:
 - Modify an update install approval rule
