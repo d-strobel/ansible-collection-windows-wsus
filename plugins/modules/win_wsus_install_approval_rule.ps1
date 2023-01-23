@@ -39,7 +39,6 @@ catch {
     $module.FailJson("Failed to get WSUS configuration", $Error[0])
 }
 
-
 # Check Approval rule existing
 try {
     $approvalRule = $wsusConfig.GetInstallApprovalRules() | Where-Object {$_.Name -eq $name}
@@ -47,7 +46,6 @@ try {
 catch {
     $module.FailJson("Failed to get approval rules", $Error[0])
 }
-
 
 if (($null -ne $approvalRule) -and ($state -eq "absent")) {
     try {
@@ -59,7 +57,7 @@ if (($null -ne $approvalRule) -and ($state -eq "absent")) {
         $module.FailJson("Failed to remove WSUS approval rule $name", $Error[0])
     }
 }
-elseif (($null -eq $approvalRule) -and ($state -eq "absent")) {
+elseif (($null -eq $approvalRule) -and ($state -eq "present")) {
     try {
         $approvalRule = $wsusConfig.CreateInstallApprovalRule($name)
         $module.Result.changed = $true
