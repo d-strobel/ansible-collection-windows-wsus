@@ -29,3 +29,30 @@ $updateClassification = $module.Params.update_classification
 $updateProduct = $module.Params.update_product
 $deadline = $module.Params.deadline
 $state = $module.Params.state
+
+# Get wsus config
+$wsusConfig = Get-WsusServer
+
+# Check Approval rule existing
+$approvalRule = $wsusConfig.GetInstallApprovalRules() | Where-Object {$_.Name -eq $name}
+
+if (($null -ne $approvalRule) -and ($state -eq "absent")) {
+    try {
+        $wsusConfig.DeleteInstallApprovalRule($approvalRule.Id)
+        $module.Result.changed = $true
+        $module.ExitJson()
+    }
+    catch {
+        $module.FailJson("Failed to remove WSUS approval rule $name", $Error[0])
+    }
+}
+elseif (($null -eq $approvalRule) -and ($state -eq "absent")) {
+    try {
+        $approvalRule = $wsusConfig.CreateInstallApprovalRule($name)
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to create WSUS approval rule $name", $Error[0])
+    }
+}
+
