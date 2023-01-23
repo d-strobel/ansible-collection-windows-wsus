@@ -75,7 +75,7 @@ if ($smtpHost -and $wsusConfig.SmtpHostName -and ($state -eq "absent")) {
         $module.FailJson("Failed to remove smtp host", $Error[0])
     }
 }
-elseif ($smtpUsername -and ($wsusConfig.SmtpHostName -ne $smtpHost) -and ($state -eq "present")) {
+elseif ($smtpHost -and ($wsusConfig.SmtpHostName -ne $smtpHost) -and ($state -eq "present")) {
     try {
         $wsusConfig.SmtpHostName = $smtpHost
         $wsusConfig.Save()
