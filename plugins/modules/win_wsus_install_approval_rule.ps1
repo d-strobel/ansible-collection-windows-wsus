@@ -20,3 +20,12 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
+$ErrorActionPreference = 'Stop'
+
+# Map variables
+$name = $module.Params.name
+$computerTargetGroup = $module.Params.computer_target_group
+$updateClassification = $module.Params.update_classification
+$updateProduct = $module.Params.update_product
+$deadline = $module.Params.deadline
+$state = $module.Params.state
