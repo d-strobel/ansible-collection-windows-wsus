@@ -20,8 +20,6 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
-$ErrorActionPreference = 'Stop'
-
 # Map variables
 $name = $module.Params.name
 $computerTargetGroup = $module.Params.computer_target_group
@@ -30,11 +28,26 @@ $updateProduct = $module.Params.update_product
 $deadline = $module.Params.deadline
 $state = $module.Params.state
 
+# ErrorAction
+$ErrorActionPreference = 'Stop'
+
 # Get wsus config
-$wsusConfig = Get-WsusServer
+try {
+    $wsusConfig = Get-WsusServer
+}
+catch {
+    $module.FailJson("Failed to get WSUS configuration", $Error[0])
+}
+
 
 # Check Approval rule existing
-$approvalRule = $wsusConfig.GetInstallApprovalRules() | Where-Object {$_.Name -eq $name}
+try {
+    $approvalRule = $wsusConfig.GetInstallApprovalRules() | Where-Object {$_.Name -eq $name}
+}
+catch {
+    $module.FailJson("Failed to get approval rules", $Error[0])
+}
+
 
 if (($null -ne $approvalRule) -and ($state -eq "absent")) {
     try {
@@ -56,3 +69,4 @@ elseif (($null -eq $approvalRule) -and ($state -eq "absent")) {
     }
 }
 
+$module.ExitJson()
