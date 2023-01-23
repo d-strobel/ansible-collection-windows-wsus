@@ -5,7 +5,6 @@
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
 #AnsibleRequires -PowerShell Ansible.ModuleUtils.AddType
-#AnsibleRequires -PowerShell ansible_collections.d_strobel.windows_wsus.plugins.module_utils.Helper
 
 $spec = @{
     options             = @{
