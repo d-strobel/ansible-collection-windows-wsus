@@ -13,7 +13,7 @@ $spec = @{
         update_classifications = @{ type = "list"; elements = "str" }
         update_categories      = @{ type = "list"; elements = "str"; aliases = "update_products" }
         deadline               = @{ type = "str" }
-        state                  = @{ type = "str"; choices = "absent", "present"; default = "present" }
+        state                  = @{ type = "str"; choices = "absent", "present", "disabled"; default = "present" }
     }
     supports_check_mode = $false
 }
@@ -57,7 +57,7 @@ if (($null -ne $approvalRule) -and ($state -eq "absent")) {
         $module.FailJson("Failed to remove WSUS approval rule $name", $Error[0])
     }
 }
-elseif (($null -eq $approvalRule) -and ($state -eq "present")) {
+elseif (($null -eq $approvalRule) -and ($state -eq "present|disabled")) {
     try {
         $approvalRule = $wsus.CreateInstallApprovalRule($name)
         $module.Result.changed = $true
@@ -204,6 +204,27 @@ if ($deadline) {
         catch {
             $module.FailJson("Failed to set deadline MinutesAfterMidnight to $minutesAfterMidnight.", $Error[0])
         }
+    }
+}
+
+if ($approvalRule.Enabled -and ($state -eq "disabled")) {
+    try {
+        $approvalRule.Enabled = $false
+        $approvalRule.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to disable approval rule.", $Error[0])
+    }
+}
+elseif ((-not $approvalRule.Enabled) -and ($state -ne "disabled")) {
+    try {
+        $approvalRule.Enabled = $true
+        $approvalRule.Save()
+        $module.Result.changed = $true
+    }
+    catch {
+        $module.FailJson("Failed to enable approval rule.", $Error[0])
     }
 }
 

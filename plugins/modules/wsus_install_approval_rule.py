@@ -43,9 +43,10 @@ options:
     description:
     - Set to C(present) to ensure the settings are present.
     - Set to C(absent) to ensure the settings are removed.
+    - Set to C(disabled) to disable the rule but apply all settings.
     type: str
     default: present
-    choices: [ absent, present ]
+    choices: [ absent, present, disabled ]
 
 author:
 - Dustin Strobel (@d-strobel)
