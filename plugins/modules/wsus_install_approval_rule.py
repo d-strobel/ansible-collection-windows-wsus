@@ -16,17 +16,18 @@ options:
     - Specify the name of the approval rule.
     type: str
     required: true
-  computer_target_group:
+  computer_target_groups:
     description:
     - Define a list of computer target groups.
+    - The groups will always be set when something differs with the current state.
     type: list
     elements: str
-  update_classification:
+  update_classifications:
     description:
     - Define a list of update classifications.
     type: list
     elements: str
-  update_product:
+  update_products:
     description:
     - Define a list of update products.
     type: list
