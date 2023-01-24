@@ -167,4 +167,44 @@ if ($updateCategories) {
     }
 }
 
+if ($deadline) {
+    # Check if format is correct
+    if ($deadline -notmatch "^\d{1,2}\-\d{1,2}:\d{1,2}$") {
+        $module.FailJson("Deadline format must be dd-hh:mm (days-hours:minutes).")
+    }
+
+    # Parse strings to days and minutes after midnight
+    try {
+        [Int16]$dayOffset = $deadline.split('-')[0]
+        [int16]$hours = $deadline.split('-')[1].split(':')[0]
+        [int16]$minutes = $deadline.split('-')[1].split(':')[1]
+        [int16]$minutesAfterMidnight = $hours * 60 + $minutes
+    }
+    catch {
+        $module.FailJson("Failed to parse string for deadline.", $Error[0])
+    }
+
+    if ($approvalRule.deadline.DayOffset -ne $dayOffset) {
+        try {
+            $approvalRule.deadline.DayOffset = $dayOffset
+            $approvalRule.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set deadline DayOffset to $dayOffset.", $Error[0])
+        }
+    }
+
+    if ($approvalRule.deadline.MinutesAfterMidnight -ne $minutesAfterMidnight) {
+        try {
+            $approvalRule.deadline.MinutesAfterMidnight = $minutesAfterMidnight
+            $approvalRule.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set deadline MinutesAfterMidnight to $minutesAfterMidnight.", $Error[0])
+        }
+    }
+}
+
 $module.ExitJson()
