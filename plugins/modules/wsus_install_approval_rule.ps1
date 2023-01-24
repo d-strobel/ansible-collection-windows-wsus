@@ -11,7 +11,7 @@ $spec = @{
         name                   = @{ type = "str"; required = $true }
         computer_target_groups = @{ type = "list"; elements = "str" }
         update_classifications = @{ type = "list"; elements = "str" }
-        update_products        = @{ type = "list"; elements = "str" }
+        update_categories      = @{ type = "list"; elements = "str"; aliases = "update_products" }
         deadline               = @{ type = "str" }
         state                  = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
@@ -24,7 +24,7 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 $name = $module.Params.name
 $computerTargetGroups = $module.Params.computer_target_groups
 $updateClassifications = $module.Params.update_classifications
-$updateProducts = $module.Params.update_products
+$updateCategories = $module.Params.update_categories
 $deadline = $module.Params.deadline
 $state = $module.Params.state
 
@@ -85,18 +85,18 @@ if ($computerTargetGroups) {
         $wantedComputerTargetGroupCollection.AddRange($wantedComputerGroups)
     }
     catch {
-        $module.FailJson("Failed to build new computer target group collection.")
+        $module.FailJson("Failed to build new computer target group collection.", $Error[0])
     }
 
     # Compare if target groups must be set
-    if (Compare-Object -ReferenceObject $approvalRule.GetComputerTargetGroups() -DifferenceObject $wantedComputerTargetGroupCollection){
+    if (Compare-Object -ReferenceObject $approvalRule.GetComputerTargetGroups() -DifferenceObject $wantedComputerTargetGroupCollection) {
         try {
             $approvalRule.SetComputerTargetGroups($wantedComputerTargetGroupCollection)
             $approvalRule.Save()
             $module.Result.changed = $true
         }
         catch {
-            $module.FailJson("Failed to set computer target group collection to approval rule.")
+            $module.FailJson("Failed to set computer target group collection to approval rule.", $Error[0])
         }
     }
 }
@@ -118,18 +118,51 @@ if ($updateClassifications) {
         $wantedUpdateClassificationCollection.AddRange($wantedUpdateClassifications)
     }
     catch {
-        $module.FailJson("Failed to build update classification collection.")
+        $module.FailJson("Failed to build update classification collection.", $Error[0])
     }
 
-    # Compare if target groups must be set
-    if (Compare-Object -ReferenceObject $approvalRule.GetUpdateClassifications() -DifferenceObject $wantedUpdateClassificationCollection){
+    # Compare if update classification collection must be set
+    if (Compare-Object -ReferenceObject $approvalRule.GetUpdateClassifications() -DifferenceObject $wantedUpdateClassificationCollection) {
         try {
             $approvalRule.SetUpdateClassifications($wantedUpdateClassificationCollection)
             $approvalRule.Save()
             $module.Result.changed = $true
         }
         catch {
-            $module.FailJson("Failed to set update classification collection to approval rule.")
+            $module.FailJson("Failed to set update classification collection to approval rule.", $Error[0])
+        }
+    }
+}
+
+if ($updateCategories) {
+
+    # Check if all update categories exists
+    $unvalidUpdateCategories = $updateCategories | Where-Object {
+        $_ -notin $wsus.GetUpdateCategories().Title
+    }
+    if ($unvalidUpdateCategories) {
+        $module.FailJson("Unvalid update categories: $unvalidUpdateCategories")
+    }
+
+    # Build wanted update category collection
+    try {
+        $wantedUpdateCategories = $wsus.GetUpdateCategories() | Where-Object { $_.Title -in $updateCategories }
+        $wantedUpdateCategoryCollection = New-Object Microsoft.UpdateServices.Administration.UpdateCategoryCollection
+        $wantedUpdateCategoryCollection.AddRange($wantedUpdateCategories)
+    }
+    catch {
+        $module.FailJson("Failed to build update category collection.", $Error[0])
+    }
+
+    # Compare if update category collection must be set
+    if (Compare-Object -ReferenceObject $approvalRule.GetCategories() -DifferenceObject $wantedUpdateCategoryCollection) {
+        try {
+            $approvalRule.SetCategories($wantedUpdateCategoryCollection)
+            $approvalRule.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set update category collection to approval rule.", $Error[0])
         }
     }
 }

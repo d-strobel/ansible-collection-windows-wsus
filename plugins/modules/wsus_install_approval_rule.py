@@ -28,9 +28,11 @@ options:
     - The classifications will always be set when something differs with the current state.
     type: list
     elements: str
-  update_products:
+  update_categories:
+    aliases: [ update_products ]
     description:
     - Define a list of update products.
+    - The categories will always be set when something differs with the current state.
     type: list
     elements: str
   deadline:
