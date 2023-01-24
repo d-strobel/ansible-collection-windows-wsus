@@ -25,6 +25,7 @@ options:
   update_classifications:
     description:
     - Define a list of update classifications.
+    - The classifications will always be set when something differs with the current state.
     type: list
     elements: str
   update_products:

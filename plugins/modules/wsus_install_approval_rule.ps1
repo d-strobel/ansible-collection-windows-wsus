@@ -75,7 +75,7 @@ if ($computerTargetGroups) {
         $_ -notin $wsus.GetComputerTargetGroups().Name
     }
     if ($unvalidComputerGroups) {
-        $module.FailJson("Computer target groups $unvalidComputerGroups does not exist.")
+        $module.FailJson("Unvalid Computer target groups: $unvalidComputerGroups")
     }
 
     # Build wanted computer target group collection
@@ -97,6 +97,39 @@ if ($computerTargetGroups) {
         }
         catch {
             $module.FailJson("Failed to set computer target group collection to approval rule.")
+        }
+    }
+}
+
+if ($updateClassifications) {
+
+    # Check if all update classifications exists
+    $unvalidUpdateClassifications = $updateClassifications | Where-Object {
+        $_ -notin $wsus.GetUpdateClassifications().Title
+    }
+    if ($unvalidUpdateClassifications) {
+        $module.FailJson("Unvalid update classifications: $unvalidUpdateClassifications")
+    }
+
+    # Build wanted update classifications collection
+    try {
+        $wantedUpdateClassifications = $wsus.GetUpdateClassifications() | Where-Object { $_.Title -in $updateClassifications }
+        $wantedUpdateClassificationCollection = New-Object Microsoft.UpdateServices.Administration.UpdateClassificationCollection
+        $wantedUpdateClassificationCollection.AddRange($wantedUpdateClassifications)
+    }
+    catch {
+        $module.FailJson("Failed to build update classification collection.")
+    }
+
+    # Compare if target groups must be set
+    if (Compare-Object -ReferenceObject $approvalRule.GetUpdateClassifications() -DifferenceObject $wantedUpdateClassificationCollection){
+        try {
+            $approvalRule.SetUpdateClassifications($wantedUpdateClassificationCollection)
+            $approvalRule.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set update classification collection to approval rule.")
         }
     }
 }
