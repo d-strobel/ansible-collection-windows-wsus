@@ -87,7 +87,63 @@ if ($null -ne $updateClassifications) {
             $module.FailJson("Failed to set update classifications: $classification", $Error[0])
         }
     }
+}
 
+# Update Categories
+if ($null -ne $updateCategories) {
+    try {
+        $allCategories = $wsus.GetUpdateCategories()
+        $activeCategories = $subscription.GetUpdateCategories()
+        $newCategories = $subscription.GetUpdateCategories()
+    }
+    catch {
+        $module.FailJson("Failed to get synchronized update categories", $Error[0])
+    }
+
+    $i = 0
+    foreach ($category in $updateCategories) {
+
+        if (($category -in $activeCategories.Title) -and ($state -eq "absent")) {
+            try {
+                $activeCategories | Where-Object {$_.Title -eq $category} | ForEach-Object {
+                    $newCategories.Remove($_)
+                }
+            }
+            catch {
+                $module.FailJson("Failed to remove update category: $category", $Error[0])
+            }
+        }
+        elseif (($category -notin $activeCategories.Title) -and ($state -eq "present")) {
+
+            # Check if wanted update classification exists
+            if ($category -notin $allCategories.Title) {
+                $module.FailJson("The following update category does not exist: $category")
+            }
+
+            if ($category -notin $newCategories.Title) {
+                try {
+                    $allCategories | Where-Object {$_.Title -eq $category} | ForEach-Object {
+                        $newCategories.Add($_) | Out-Null
+                    }
+                }
+                catch {
+                    $module.FailJson("Failed to add update category: $category", $Error[0])
+                }
+            }
+        }
+        $i++
+    }
+
+    if (Compare-Object -ReferenceObject $activeCategories -DifferenceObject $newCategories) {
+        try {
+            $subscription.SetUpdateCategories($newCategories)
+            $subscription.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set update category: $category", $Error[0])
+        }
+    }
 }
 
 $module.ExitJson()
