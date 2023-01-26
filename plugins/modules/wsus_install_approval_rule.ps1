@@ -71,11 +71,11 @@ elseif (($null -eq $approvalRule) -and ($state -eq "present|disabled")) {
 if ($computerTargetGroups) {
 
     # Check if all groups exists
-    $unvalidComputerGroups = $computerTargetGroups | Where-Object {
+    $invalidComputerGroups = $computerTargetGroups | Where-Object {
         $_ -notin $wsus.GetComputerTargetGroups().Name
     }
-    if ($unvalidComputerGroups) {
-        $module.FailJson("Unvalid Computer target groups: $unvalidComputerGroups")
+    if ($invalidComputerGroups) {
+        $module.FailJson("Invalid Computer target groups: $invalidComputerGroups")
     }
 
     # Build wanted computer target group collection
@@ -104,11 +104,11 @@ if ($computerTargetGroups) {
 if ($updateClassifications) {
 
     # Check if all update classifications exists
-    $unvalidUpdateClassifications = $updateClassifications | Where-Object {
+    $invalidUpdateClassifications = $updateClassifications | Where-Object {
         $_ -notin $wsus.GetUpdateClassifications().Title
     }
-    if ($unvalidUpdateClassifications) {
-        $module.FailJson("Unvalid update classifications: $unvalidUpdateClassifications")
+    if ($invalidUpdateClassifications) {
+        $module.FailJson("Invalid update classifications: $invalidUpdateClassifications")
     }
 
     # Build wanted update classifications collection
@@ -137,11 +137,11 @@ if ($updateClassifications) {
 if ($updateCategories) {
 
     # Check if all update categories exists
-    $unvalidUpdateCategories = $updateCategories | Where-Object {
+    $invalidUpdateCategories = $updateCategories | Where-Object {
         $_ -notin $wsus.GetUpdateCategories().Title
     }
-    if ($unvalidUpdateCategories) {
-        $module.FailJson("Unvalid update categories: $unvalidUpdateCategories")
+    if ($invalidUpdateCategories) {
+        $module.FailJson("Invalid update categories: $invalidUpdateCategories")
     }
 
     # Build wanted update category collection
