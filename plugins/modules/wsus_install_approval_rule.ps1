@@ -57,7 +57,7 @@ if (($null -ne $approvalRule) -and ($state -eq "absent")) {
         $module.FailJson("Failed to remove WSUS approval rule $name", $Error[0])
     }
 }
-elseif (($null -eq $approvalRule) -and ($state -eq "present|disabled")) {
+elseif (($null -eq $approvalRule) -and ($state -ne "absent")) {
     try {
         $approvalRule = $wsus.CreateInstallApprovalRule($name)
         $module.Result.changed = $true
