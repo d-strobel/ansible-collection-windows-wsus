@@ -50,12 +50,12 @@ if (($null -ne $targetGroup) -and ($state -eq "absent")) {
 }
 elseif (($null -eq $targetGroup) -and ($state -eq "present")) {
     try {
-        $targetGroup = $wsus.CreateComputerTargetGroup($targetGroup)
+        $targetGroup = $wsus.CreateComputerTargetGroup($name)
         $module.Result.id = $targetGroup.Id
         $module.Result.changed = $true
     }
     catch {
-        $module.FailJson("Failed to create computer target group $targetGroup", $Error[0])
+        $module.FailJson("Failed to create computer target group $name", $Error[0])
     }
 }
 elseif (($null -ne $targetGroup) -and ($state -eq "present")) {
