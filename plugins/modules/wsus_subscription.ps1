@@ -8,9 +8,9 @@
 
 $spec = @{
     options             = @{
-        update_classifications  = @{ type = "list"; elements = "str" }
-        update_categories = @{ type = "list"; elements = "str"; aliases = "update_products" }
-        state = @{ type = "str"; choices = "absent", "present"; default = "present" }
+        update_classifications = @{ type = "list"; elements = "str" }
+        update_categories      = @{ type = "list"; elements = "str"; aliases = "update_products" }
+        state                  = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
     supports_check_mode = $false
 }
@@ -34,5 +34,60 @@ catch {
     $module.FailJson("Failed to get WSUS configuration", $Error[0])
 }
 
+# Update Classifications
+if ($null -ne $updateClassifications) {
+    try {
+        $allClassifications = $wsus.GetUpdateClassifications()
+        $activeClassifications = $subscription.GetUpdateClassifications()
+        $newClassifications = $subscription.GetUpdateClassifications()
+    }
+    catch {
+        $module.FailJson("Failed to get synchronized update classifications", $Error[0])
+    }
+
+    $i = 0
+    foreach ($classification in $updateClassifications) {
+
+        if (($classification -in $activeClassifications.Title) -and ($state -eq "absent")) {
+            try {
+                $c = $activeClassifications | Where-Object {$_.Title -eq $classification}
+                $newClassifications.Remove($c)
+            }
+            catch {
+                $module.FailJson("Failed to remove update classification: $classification", $Error[0])
+            }
+        }
+        elseif (($classification -notin $activeClassifications.Title) -and ($state -eq "present")) {
+
+            # Check if wanted update classification exists
+            if ($classification -notin $allClassifications.Title) {
+                $module.FailJson("The following update classification does not exist: $classification")
+            }
+
+            if ($classification -notin $newClassifications.Title) {
+                try {
+                    $c = $allClassifications | Where-Object {$_.Title -eq $classification}
+                    $newClassifications.Add($c) | Out-Null
+                }
+                catch {
+                    $module.FailJson("Failed to add update classification: $classification", $Error[0])
+                }
+            }
+        }
+        $i++
+    }
+
+    if (Compare-Object -ReferenceObject $activeClassifications -DifferenceObject $newClassifications) {
+        try {
+            $subscription.SetUpdateClassifications($newClassifications)
+            $subscription.Save()
+            $module.Result.changed = $true
+        }
+        catch {
+            $module.FailJson("Failed to set update classifications: $classification", $Error[0])
+        }
+    }
+
+}
 
 $module.ExitJson()
