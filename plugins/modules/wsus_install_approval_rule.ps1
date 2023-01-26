@@ -184,25 +184,49 @@ if ($deadline) {
         $module.FailJson("Failed to parse string for deadline.", $Error[0])
     }
 
-    if ($approvalRule.deadline.DayOffset -ne $dayOffset) {
+    if ($null -eq $approvalRule.deadline) {
+        # Create new deadline object
         try {
-            $approvalRule.deadline.DayOffset = $dayOffset
+            $newDeadline = New-Object Microsoft.UpdateServices.Administration.AutomaticUpdateApprovalDeadline
+            $newDeadline.DayOffset = $dayOffset
+            $newDeadline.MinutesAfterMidnight = $minutesAfterMidnight
+        }
+        catch {
+            $module.FailJson("Failed to create new deadline object.", $Error[0])
+        }
+
+        try {
+            $approvalRule.deadline = $newDeadline
             $approvalRule.Save()
             $module.Result.changed = $true
         }
         catch {
-            $module.FailJson("Failed to set deadline DayOffset to $dayOffset.", $Error[0])
+            $module.FailJson("Failed to set new deadline object to rule.", $Error[0])
         }
     }
-
-    if ($approvalRule.deadline.MinutesAfterMidnight -ne $minutesAfterMidnight) {
-        try {
-            $approvalRule.deadline.MinutesAfterMidnight = $minutesAfterMidnight
-            $approvalRule.Save()
-            $module.Result.changed = $true
+    else {
+        # DayOffset
+        if ($approvalRule.deadline.DayOffset -ne $dayOffset) {
+            try {
+                $approvalRule.deadline.DayOffset = $dayOffset
+                $approvalRule.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to set deadline DayOffset to $dayOffset.", $Error[0])
+            }
         }
-        catch {
-            $module.FailJson("Failed to set deadline MinutesAfterMidnight to $minutesAfterMidnight.", $Error[0])
+
+        # MinutesAfterMidnight
+        if ($approvalRule.deadline.MinutesAfterMidnight -ne $minutesAfterMidnight) {
+            try {
+                $approvalRule.deadline.MinutesAfterMidnight = $minutesAfterMidnight
+                $approvalRule.Save()
+                $module.Result.changed = $true
+            }
+            catch {
+                $module.FailJson("Failed to set deadline MinutesAfterMidnight to $minutesAfterMidnight.", $Error[0])
+            }
         }
     }
 }
