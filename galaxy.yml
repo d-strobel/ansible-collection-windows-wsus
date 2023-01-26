@@ -1,5 +1,5 @@
 namespace: d_strobel
-name: windows_wsus
+name: wsus
 version: 0.1.0
 readme: README.md
 authors:
